@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% set title = "Settings" %}
+{% block content %}
+{% if settings %}
+<div class="container">
+    <div class="bg-primary rounded-lg shadow p-2 bg-white mt-2">
+        <form method="post" class="p-4" name="settings">
+
+            <label class="form-label p-2 h2">Настройки</label>
+            <div class="input-group mb-3">
+                <span class="input-group-text bg-dark text-white">BOT_TOKEN</span>
+                <input type="text" name="api_id" value="{{settings.bot_token}}">
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text bg-dark text-white">GROUP</span>
+                <input type="text" name="api_hash" value="{{settings.my_group}}">
+            </div>
+
+            <label class="form-label p-2 h4">Лимиты и таймауты</label>
+            <div class="input-group mb-3">
+                <span class="input-group-text bg-dark text-white">Bypass sleep</span>
+                <input type="text" name="posts_sleep" value="{{settings.bypass_sleep}}">
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text bg-dark text-white">Get variants</span>
+                <input type="text" name="variants" value="{{settings.variants}}">
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text bg-dark text-white">Grade</span>
+                <input type="text" name="grade" value="{{settings.grade}}">
+            </div>
+             <div class="p-2 form-group">
+                <button class="btn btn-outline-success" type="submit">Сохранить</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

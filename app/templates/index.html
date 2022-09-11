@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% set title = "Index" %}
+{% block content %}
+<div class="container table-responsive py-5">
+
+  <label for="vo" class="h2">Вышка</label>
+  <div class="ms-5 p-1">
+    <div class="col-md-2 d-flex">
+      <div class="h6" id="vo">Всего: </div>
+      <div class="ms-5">{{vo['count']}}</div>
+    </div>
+  </div>
+  <div class="ms-5 p-1">
+    <div class="col-md-2 d-flex">
+      <div class="h6">Собрано: </div>
+      <div class="ms-4">{{vo['done']}}</div>
+    </div>
+  </div>
+
+  <label for="spo" class="h2">Средка</label>
+  <div class="ms-5 p-1">
+    <div class="col-md-2 d-flex">
+      <div id="spo">Всего: </div>
+      <div class="ms-5">{{spo['count']}}</div>
+    </div>
+  </div>
+ <div class="ms-5 p-1">
+    <div class="col-md-2 d-flex">
+      <div class="h6">Собрано: </div>
+      <div class="ms-4">{{spo['done']}}</div>
+    </div>
+  </div>
+
+  <form method="post">
+    <div class="input-group col-md-2 d-flex">
+      <label for="bypass" class="h2">Обход</label>
+      <div>
+        {% if accounts['bypass_on'] %}
+          <button type="submit" class="btn btn-primary btn-sm ms-4 px-2" name="off" disabled>идет</button>
+        {% else %}
+          <button type="submit" class="btn btn-success btn-sm ms-4 px-2" name="bypass" value=True>старт</button>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+  <div class="ms-5 p-1" id="bypass">
+    <div class="h4">Аккаунт: {{accounts['bypass']}}</div>
+  </div>
+
+  <form method="post">
+    <div class="input-group col-md-2 d-flex">
+      <label for="bypass" class="h2">Сбор</label>
+      <div>
+        {% if accounts['parser_on'] %}
+          <button type="submit" class="btn btn-primary btn-sm ms-5 px-2" name="off" disabled>идет</button>
+        {% else %}
+          <button type="submit" class="btn btn-success btn-sm ms-5 px-2" name="parse" value=True>старт</button>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+  <div class="ms-5 p-1" id="parse">
+    <div class="h4">Аккаунт: {{accounts['parser']}}</div>
+  </div>
+
+  <form method="post">
+  <div class="input-group col-md-2 d-flex">
+    <label for="bypass" class="h2">Нотиф</label>
+    <div>
+      {% if accounts['info'] %}
+        <button type="submit" class="btn btn-primary btn-sm ms-4 px-2" name="bot" value=False>вык</button>
+      {% else %}
+        <button type="submit" class="btn btn-success btn-sm ms-4 px-2" name="bot" value=True>вкл</button>
+      {% endif %}
+    </div>
+  </div>
+  </form>
+
+</div>
+{% endblock %}

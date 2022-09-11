@@ -1,0 +1,11 @@
+aiohttp
+asyncpg
+colorama
+loguru
+pydantic
+requests
+aiogram
+jinja2
+aiohttp_jinja2
+aiohttp_session
+cryptography

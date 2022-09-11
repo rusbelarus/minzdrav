@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% set title = "Login" %}
+{% block content %}
+<div class="container">
+<div class="d-flex justify-content-center align-items-center min-vh-100">
+    <div class="border rounded shadow p-3 align-items-center">
+        <img src="./static/images/med_logo.png" class="mx-auto d-block" width="150" height="150">
+        <h3 class="text-center mb-0">Login</h3>
+        <form method="post" class="post-form">
+            {% if login_error %}
+                <div class="form-group p-2">
+                    <label for="log_er">Username</label>
+                    <input type="text" class="form-control is-invalid" id="log_er" placeholder="{{login_error}}" name="username">
+                </div>
+                {% if pass_error %}
+                    <div class="form-group p-2">
+                        <label for="log_er_pas_er">Password</label>
+                        <input type="password" class="form-control is-invalid" id="log_er_pas_er" placeholder="{{pass_error.error}}" name="password">
+                    </div>
+                {% else %}
+                    <div class="form-group p-2">
+                        <label for="pas_ok_log_er">Password</label>
+                        <input type="password" class="form-control" id="pas_ok_log_er" name="password">
+                    </div>
+                {% endif %}
+            {% else %}
+                {% if pass_error %}
+                    <div class="form-group p-2">
+                        <label for="log_ok">Username</label>
+                        <input type="text" class="form-control is-valid" value="{{pass_error.username}}" id="log_ok" name="username">
+                    </div>
+                    <div class="form-group p-2">
+                        <label for="pas_er">Password</label>
+                        <input type="password" class="form-control is-invalid" id="pas_er" placeholder="{{pass_error.error}}" name="password">
+                    </div>
+                {% else %}
+                    <div class="form-group p-2">
+                        <label for="log_ok_pas_ok">Username</label>
+                        <input type="text" class="form-control" id="log_ok_pas_ok" name="username">
+                    </div>
+                    <div class="form-group p-2">
+                        <label for="pas_ok_log_ok">Password</label>
+                        <input type="password" class="form-control" id="pas_ok_log_ok" name="password">
+                    </div>
+                {% endif %}
+            {% endif %}
+            <div class="d-flex p-3 justify-content-center align-items-center">
+                <button type="submit" class="btn btn-outline-success w-50">
+                    Войти
+                </button>
+            </div>
+        </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

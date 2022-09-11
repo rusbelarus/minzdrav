@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% set title = "Upload" %}
+{% block content %}
+<div class="container">
+    <div class="bg-primary rounded-lg shadow p-2 bg-white mt-2">
+    <form method="post" class="p-4" onsubmit='disableButton()'>
+        <div class="form-group">
+            <label for="channels_upload" class="form-label"><h2>Добавить каналы</h2></label>
+            {% if error %}
+                <textarea class="form-control text-black bg-light is-invalid" id="error_upload" rows="10" placeholder="{{error}}" name="channels"></textarea>
+            {% else %}
+                <textarea class="form-control text-white bg-dark" id="channels_upload" rows="10" placeholder="введите список каналов" name="channels"></textarea>
+            {% endif %}
+        </div>
+        <div class="p-2 form-group">
+            <button class="btn btn-outline-success" id="upload" type="submit">Добавить</button>
+        </div>
+    </form>
+    <script>
+        function disableButton() {
+            var btn = document.getElementById('upload');
+            btn.disabled = true;
+            btn.innerText = 'загрузка'
+        }
+    </script>
+    </div>
+    {% if channels %}
+    <table class="table table-borderless table-dark border-dark" data-toggle="table" data-mobile-responsive="true">
+    <thead>
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Username</th>
+      <th scope="col">Error</th>
+    </tr>
+    </thead>
+    <tbody>
+      {% for channel in channels %}
+        <tr>
+            <th scope="row">{{channel['id']}}</th>
+            <td><a href="https://t.me./{{channel.username}}">{{channel['username']}}</a></td>
+            <td>{{channel['error']}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    {% endif %}
+    </table>
+    </div>
+</div>
+{% endblock %}

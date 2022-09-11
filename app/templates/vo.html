@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% set title = "VO" %}
+{% block content %}
+<div class="container table-responsive py-5">
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Название</th>
+      <th scope="col">Zet</th>
+      <th scope="col">Cпециальности</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if ioms %}
+    {% for iom in ioms %}
+      {% if iom.status == 'done' %}
+        <tr class="table-success justify-content-md-center">
+      {% else %}
+        {% if iom.status == 'wait' %}
+         <tr class="table-warning justify-content-md-center">
+        {% else %}
+          <tr class="table justify-content-md-center">
+        {% endif %}
+      {% endif %}
+      <td scope="row" class="col-md-auto">{{loop.index}}</td>
+      <td class="col-md-auto"><a href=#>{{iom.name}}</a></td>
+      <td class="col-md-auto justify-content-md-center">{{iom.zet}}</td>
+        <td class="col-md-auto justify-content-md-center">{{iom.additionalspecialities}}</td>
+    {% endfor %}
+  {% endif %}
+  </tbody>
+</table>
+</div>
+{% endblock %}
