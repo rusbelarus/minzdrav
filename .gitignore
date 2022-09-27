@@ -5447,3 +5447,6 @@ Mercury.modules
 *.lvlps
 .cache/
 
+!/.gitignore
+!/config.ini
+!/config.ini
