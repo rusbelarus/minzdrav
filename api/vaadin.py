@@ -2,7 +2,7 @@ import json
 import re
 import time
 
-from api.session import proxies, Vaadin, Vsess, Session
+from api.session import proxies, Vaadin, Session
 from pydantic import BaseModel, Field
 from log.logging import logger
 
@@ -44,9 +44,10 @@ async def get_vaadin(session: Session, iom_id: str, host: dict) -> Session | Non
                f"{host['iom']}#!&v-wn=_system"
         req = SESSION.post(url=f"https://{host['iom']}/?v-{CURR_TIME}", headers=HEADERS, data=DATA, proxies=proxies).json()
         result = Response(**req)
+        print(result)
         if result.uidl:
             VAADIN = Vaadin(**json.loads(result.uidl))
-            return Session(**{'session': SESSION, 'token': session.token, 'vaadin': VAADIN, 'vsess': None})
+            return Session(**{'session': SESSION, 'token': session.token, 'vaadin': VAADIN})
         logger.warning(f'VAADIN\nVaadin session error')
         return None
     except Exception as exc:
@@ -54,49 +55,46 @@ async def get_vaadin(session: Session, iom_id: str, host: dict) -> Session | Non
         return None
 
 
-async def click_by_key(session: Session, host: dict, key: int, sync_id: int = 0, client_id: int = 0):
+async def click_by_key(session: Session, host: dict, key: int):
     SESSION = session.session
     VAADIN = session.vaadin
-    VSESS = session.vsess
-    if VSESS:
-        sync_id = VSESS.sync_id + 1
     PAYLOAD = {
         "csrfToken": VAADIN.vaadin_key,
         "rpc": [
             [f"{key}", "com.vaadin.shared.ui.button.ButtonServerRpc", "click", [{
                 "altKey": False, "button": "LEFT", "clientX": 247, "clientY": 229, "ctrlKey": False, "metaKey": False,
                 "relativeX": 30, "relativeY": 18, "shiftKey": False, "type": 1}]]],
-        "syncId": sync_id, "clientId": client_id}
+        "syncId": VAADIN.sync_id, "clientId": VAADIN.client_id}
     try:
         req = SESSION.post(f"https://{host['iom']}/UIDL/?v-uiId=0", data=json.dumps(PAYLOAD), proxies=proxies).text
         if req:
-            data = re.findall(r"for\(;;\);\[(.*)]", req)[0]
-            VSESS = Vsess(**json.loads(data))
-            return Session(**{'session': SESSION, 'token': session.token, 'vaadin': VAADIN, 'vsess': VSESS})
+            data = json.loads(re.findall(r"for\(;;\);\[(.*)]", req)[0])
+            VAADIN.state = data['state']
+            VAADIN.client_id = data['clientId']
+            VAADIN.sync_id = data['syncId']
+            return Session(**{'session': SESSION, 'token': session.token, 'vaadin': VAADIN})
         return False
     except Exception as exc:
         logger.critical(exc)
         return False
 
 
-async def close(session: Session, host: dict, key: int, sync_id: int = 0, client_id: int = 0):
+async def close(session: Session, host: dict, key: int):
     SESSION = session.session
     VAADIN = session.vaadin
-    VSESS = session.vsess
-    if VSESS:
-        sync_id = VSESS.sync_id + 1
-        client_id = VSESS.client_id + 1
     PAYLOAD = {
         "csrfToken": VAADIN.vaadin_key,
         "rpc": [
             [f"{key}", "v", "v", ["close", ["b", True]]]],
-        "syncId": sync_id, "clientId": client_id}
+        "syncId": VAADIN.sync_id, "clientId": VAADIN.client_id}
     try:
         req = SESSION.post(f"https://{host['iom']}/UIDL/?v-uiId=0", data=json.dumps(PAYLOAD), proxies=proxies).text
         if req:
             data = re.findall(r"for\(;;\);\[(.*)]", req)[0]
-            VSESS = Vsess(**json.loads(data))
-            return Session(**{'session': SESSION, 'token': session.token, 'vaadin': VAADIN, 'vsess': VSESS})
+            VAADIN.state = data['state']
+            VAADIN.client_id = data['clientId']
+            VAADIN.sync_id = data['syncId']
+            return Session(**{'session': SESSION, 'token': session.token, 'vaadin': VAADIN})
         return False
     except Exception as exc:
         logger.critical(exc)

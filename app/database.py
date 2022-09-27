@@ -130,6 +130,7 @@ class Iom(BaseModel):
     questions: list | str | None
     status: str | None
     grade: int | None
+    variants: int | None
 
     class Config:
         allow_population_by_field_name = True
@@ -148,15 +149,16 @@ class Iom(BaseModel):
                 ADDITIONALSPECIALITIES TEXT NOT NULL,
                 QUESTIONS TEXT[] DEFAULT NULL,
                 STATUS TEXT DEFAULT NULL,
-                GRADE INTEGER NOT NULL)""")
+                GRADE INTEGER NOT NULL,
+                VARIANTS INTEGER NOT NULL)""")
 
     @staticmethod
-    async def insert_vo_iom(conn, iom: object(), grade: int):
+    async def insert_vo_iom(conn, iom: object(), grade: int, variants: int):
         await conn.execute(f"""INSERT INTO {Table.VO_IOMS} 
-           (ID, NAME, ZET, STARTDATE, ENDDATE, IOMHOST, IOMKIND, SPECIALITYNAME, ADDITIONALSPECIALITIES, GRADE) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (ID) DO NOTHING""", iom.id, iom.name, iom.zet,
+        (ID, NAME, ZET, STARTDATE, ENDDATE, IOMHOST, IOMKIND, SPECIALITYNAME, ADDITIONALSPECIALITIES, GRADE, VARIANTS) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT (ID) DO NOTHING""", iom.id, iom.name, iom.zet,
                            iom.startdate, iom.enddate, json.dumps(iom.iomhost), iom.iomkind, iom.specialityname,
-                           iom.additionalspecialities, grade)
+                           iom.additionalspecialities, grade, variants)
 
     @staticmethod
     async def get_vo_ioms(conn) -> list:
@@ -191,6 +193,10 @@ class Iom(BaseModel):
         await conn.execute(f"""UPDATE {Table.VO_IOMS} SET GRADE = $2 WHERE ID = $1""", iom_id, grade)
 
     @staticmethod
+    async def set_vo_iom_variants(conn, iom_id: str, variants: int):
+        await conn.execute(f"""UPDATE {Table.VO_IOMS} SET VARIANTS = $2 WHERE ID = $1""", iom_id, variants)
+
+    @staticmethod
     async def create_table_spo_ioms(conn):
         await conn.execute(f"""CREATE TABLE IF NOT EXISTS {Table.SPO_IOMS} (
                 ID TEXT PRIMARY KEY,
@@ -204,15 +210,16 @@ class Iom(BaseModel):
                 ADDITIONALSPECIALITIES TEXT NOT NULL,
                 QUESTIONS TEXT[] DEFAULT NULL,
                 STATUS TEXT DEFAULT NULL,
-                GRADE INTEGER NOT NULL)""")
+                GRADE INTEGER NOT NULL,
+                VARIANTS INTEGER NOT NULL )""")
 
     @staticmethod
-    async def insert_spo_iom(conn, iom: object(), grade: int):
+    async def insert_spo_iom(conn, iom: object(), grade: int, variants: int):
         await conn.execute(f"""INSERT INTO {Table.SPO_IOMS} 
-        (ID, NAME, ZET, STARTDATE, ENDDATE, IOMHOST, IOMKIND, SPECIALITYNAME, ADDITIONALSPECIALITIES, GRADE) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (ID) DO NOTHING""", iom.id, iom.name, iom.zet,
+        (ID, NAME, ZET, STARTDATE, ENDDATE, IOMHOST, IOMKIND, SPECIALITYNAME, ADDITIONALSPECIALITIES, GRADE, VARIANTS) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT (ID) DO NOTHING""", iom.id, iom.name, iom.zet,
                            iom.startdate, iom.enddate, json.dumps(iom.iomhost), iom.iomkind, iom.specialityname,
-                           iom.additionalspecialities, grade)
+                           iom.additionalspecialities, grade, variants)
 
     @staticmethod
     async def get_spo_ioms(conn) -> list:
@@ -246,6 +253,10 @@ class Iom(BaseModel):
     async def set_spo_iom_grade(conn, iom_id: str, grade: int):
         await conn.execute(f"""UPDATE {Table.VO_IOMS} SET GRADE = $2 WHERE ID = $1""", iom_id, grade)
 
+    @staticmethod
+    async def set_spo_iom_variants(conn, iom_id: str, variants: int):
+        await conn.execute(f"""UPDATE {Table.SPO_IOMS} SET VARIANTS = $2 WHERE ID = $1""", iom_id, variants)
+
 
 class Answer(BaseModel):
     id: int | str
@@ -268,7 +279,7 @@ class Question(BaseModel):
         temp = combinations_with_replacement([1, 0, 1, 0], q_len)
         for x in list(temp):
             comb.add(x)
-        return [[*combination] for combination in comb]
+        return [[*combination] for combination in comb if any([*combination]) is True]
 
     @staticmethod
     async def generate_single_answers(q_len: int) -> list:
@@ -322,6 +333,11 @@ class Question(BaseModel):
         question = Question(**record)
         if question.status != Status.DONE:
             combinations = sorted(json.loads(question.combinations))
+            if len(combinations) == 0:
+                answers = [answer['content'] for answer in question.answers]
+                for _ in len(answers):
+                    combinations.append(0)
+                combinations = [[*combinations]]
             if status == Status.DONE:
                 await conn.execute(f"""UPDATE {Table.QUESTIONS} 
                 SET STATUS = $2, COMBINATIONS = $3 WHERE ID = $1""", q_id, status, json.dumps([combinations[0]]))

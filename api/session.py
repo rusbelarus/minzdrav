@@ -21,26 +21,17 @@ class Token(BaseModel):
 
 class Vaadin(BaseModel):
     vaadin_key: str = Field(alias='Vaadin-Security-Key')
-    vaadin_push: str = Field(alias='Vaadin-Push-ID')
     sync_id: int = Field(alias='syncId')
-    resynchronize: bool
     client_id: int = Field(alias='clientId')
     changes: list
     state: dict
     rpc: list
 
 
-class Vsess(BaseModel):
-    sync_id: int | None = Field(alias='syncId')
-    client_id: int | None = Field(alias='clientId')
-    state: dict | None
-
-
 class Session(BaseModel):
     token: Token
     session: requests.sessions.Session
     vaadin: Vaadin | None
-    vsess: Vsess | None
 
     class Config:
         arbitrary_types_allowed = True

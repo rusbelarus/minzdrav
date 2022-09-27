@@ -50,7 +50,8 @@ async def control_vo_ioms(pool, session: Session, iom_id: str, host: dict):
     if iom:
         async with pool.acquire() as conn:
             sett = await Setting.get_settings(conn)
-            await Iom.insert_vo_iom(conn, iom=iom, grade=sett.grade)
+        async with pool.acquire() as conn:
+            await Iom.insert_vo_iom(conn, iom=iom, grade=sett.grade, variants=sett.variants)
         if sett.bypass_info:
             asyncio.create_task(send_notification(iom=iom, sett=sett, host=host))
         if IomKind.TRAINING in iom.iomkind or IomKind.INTERACTIVE in iom.iomkind:
@@ -64,7 +65,8 @@ async def control_spo_ioms(pool, session: Session, iom_id: str, host: dict):
         if iom:
             async with pool.acquire() as conn:
                 sett = await Setting.get_settings(conn)
-                await Iom.insert_spo_iom(conn, iom=iom, grade=sett.grade)
+            async with pool.acquire() as conn:
+                await Iom.insert_spo_iom(conn, iom=iom, grade=sett.grade, variants=sett.variants)
             if sett.bypass_info:
                 asyncio.create_task(send_notification(iom=iom, sett=sett, host=host))
             if IomKind.TRAINING in iom.iomkind or IomKind.INTERACTIVE in iom.iomkind:

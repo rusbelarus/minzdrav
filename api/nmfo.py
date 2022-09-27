@@ -30,13 +30,16 @@ async def include_in_plan(session: Session, iom_id: str, host: dict) -> bool:
 
 
 async def exclude_from_plan(session: Session, iom_id: str, host: dict) -> bool:
-    METHOD = f'/api/api/educational-elements/application-order-delete/request'
-    HEADERS = {"Accept": "application/json", "Authorization": f"Bearer {session.token.access_token}"}
+    METHOD = f'/api/api/educational-elements/application-order-delete/confirm'
+    HEADERS = {
+        "Accept": "application/json",
+        "Authorization": f"Bearer {session.token.access_token}",
+        "Content-type": "application/json"}
     SESSION = session.session
-    PAYLOAD = {"elementId": iom_id, "trainingCycleId": None}
+    PAYLOAD = {"elementId": iom_id, "trainingCycleId": None, "personCyclesList": []}
     try:
-        req = SESSION.post(f"https://{host['host']}{METHOD}", headers=HEADERS, data=json.dumps(PAYLOAD), proxies=proxies)
-        if req.status_code == 200:
+        req = SESSION.post(f"https://{host['host']}{METHOD}", headers=HEADERS, data=json.dumps(PAYLOAD), proxies=proxies).json()
+        if req['code'] == 0:
             return True
         return False
     except Exception as exc:
