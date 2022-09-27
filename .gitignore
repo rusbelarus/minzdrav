@@ -1,3 +1,4 @@
+.idea
 config.ini
 ### Maven template
 target/
@@ -5448,5 +5449,6 @@ Mercury.modules
 .cache/
 
 !/.gitignore
+!/config.ini
 !/config.ini
 !/config.ini
